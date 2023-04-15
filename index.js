@@ -57,18 +57,33 @@ app.post('/signup', async (req, res) => {
     const EmailAlreadyFind = await Login.findOne({ Email: req.body.Email })
     console.log("Email Find database :", EmailAlreadyFind)
 
+    // // // 1st check method
     try {
         // check Email is already exist error shows && Email is not found (not find) && Email=== Null
         if (EmailAlreadyFind.Email) {
-            res.send('already account created').status(200)
+            res.send('Already account created --->' + EmailAlreadyFind.Email).status(200)
             console.log('email already exist')
         }
     } catch (error) {
-        console.log("pendding")
-        const UsersData = await Users.save();
-        console.log(`UsersData req-body ` + UsersData);
+        console.log("Processing")
+            const UsersData = await Users.save();
+            console.log(`UsersData req-body ` + UsersData);
         res.json(UsersData)
     }
+
+
+    /// /// 2st check method 
+    // if (EmailAlreadyFind === null) {
+    //     const UsersData = await Users.save();
+    //     res.json(UsersData)
+    // } else {
+    //     console.log(" Email Already have Account ")
+    //     return res.json({ error: "Email Already have Account" })
+    // }
+
+
+
+
     /// next js req
 
 })
@@ -89,7 +104,7 @@ const CryptoJS = require("crypto-js");
 app.post('/signup/encrypt-js', async (req, res) => {
     // schema 
     const Users = new Login();   // schema Login.js line:7 
-    const { Fname , Email , Password } = req.body 
+    const { Fname, Email, Password } = req.body
     Users.Fname = Fname;
     Users.Email = Email;
 
@@ -121,15 +136,15 @@ app.post('/signup/encrypt-js', async (req, res) => {
 // /// login time Decrypt password that password can check 
 app.post('/login/decrypt-js', async (req, res) => {
     const Users = new Login();   // schema Login.js line:7 
-    const {Email , Password} = req.body
+    const { Email, Password } = req.body
     Users.Email = Email;
 
     ////// EncryptPassword this Email Password
     const EmailFind = await Login.findOne({ Email: Email })
 
-   
-            /// /// 1st we check a Email is Null (Not find a Email in database) 
-    if (EmailFind != null) { 
+
+    /// /// 1st we check a Email is Null (Not find a Email in database) 
+    if (EmailFind != null) {
 
         /////// /// DecryptPassword
         const DecryptPassword = CryptoJS.AES.decrypt(EmailFind.Password, 'secret key : vishal').toString(CryptoJS.enc.Utf8)
@@ -140,8 +155,8 @@ app.post('/login/decrypt-js', async (req, res) => {
         try {
             if (Password === DecryptPassword) {
                 console.log('your password is correct')
-                const token = jwt.sign({ Email :Users.Email , Fname :Users.Fname}, 'json web token');
-                res.status(200).json({Success:true , token})
+                const token = jwt.sign({ Email: Users.Email, Fname: Users.Fname }, 'json web token');
+                res.status(200).json({ Success: true, token })
             } else {
                 console.log("password invalid")
                 res.send('Password invalid')
@@ -153,7 +168,7 @@ app.post('/login/decrypt-js', async (req, res) => {
         }
 
 
-    }else {
+    } else {
         console.log("Email is Invalid  Email is Not Find in Database")
         res.send("Email is Invalid Email is Not Find in Database ").status(400)
     }
