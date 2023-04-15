@@ -77,6 +77,9 @@ app.post('/signup', async (req, res) => {
 
 
 
+
+
+
 //// //// Encrepted data for signUp time
 
 const CryptoJS = require("crypto-js");
@@ -86,20 +89,21 @@ const CryptoJS = require("crypto-js");
 app.post('/signup/encrypt-js', async (req, res) => {
     // schema 
     const Users = new Login();   // schema Login.js line:7 
-    Users.Fname = req.body.Fname;
-    Users.Email = req.body.Email;
+    const { Fname , Email , Password } = req.body 
+    Users.Fname = Fname;
+    Users.Email = Email;
 
     ////// Encrypt Password 
-    const EncryptPassword = CryptoJS.AES.encrypt(req.body.Password, 'secret key : vishal').toString();
+    const EncryptPassword = CryptoJS.AES.encrypt(Password, 'secret key : vishal').toString();
 
     Users.Password = EncryptPassword;
 
     // check for Already account login && Email 
-    const EmailAlreadyFind = await Login.findOne({ Email: req.body.Email })
+    const EmailAlreadyFind = await Login.findOne({ Email: Email }) // req.body.Email 
 
     try {
         // check Email is already exist error shows && Email is not found (not find) && Email=== Null
-        if (EmailAlreadyFind.Email) {
+        if (EmailAlreadyFind) {
             res.send('already account created').status(200)
             console.log('email already exist')
         }
@@ -117,20 +121,27 @@ app.post('/signup/encrypt-js', async (req, res) => {
 // /// login time Decrypt password that password can check 
 app.post('/login/decrypt-js', async (req, res) => {
     const Users = new Login();   // schema Login.js line:7 
-    Users.Email = req.body.Email;
+    const {Email , Password} = req.body
+    Users.Email = Email;
 
     ////// EncryptPassword this Email Password
-    const EmailFind = await Login.findOne({ Email: req.body.Email })
+    const EmailFind = await Login.findOne({ Email: Email })
 
-    /////// DecryptPassword
+   
+            /// /// 1st we check a Email is Null (Not find a Email in database) 
+    if (EmailFind != null) { 
 
-    if (EmailFind != null) {
-
+        /////// /// DecryptPassword
         const DecryptPassword = CryptoJS.AES.decrypt(EmailFind.Password, 'secret key : vishal').toString(CryptoJS.enc.Utf8)
+
+        /// /// Jwt token send a user 
+        const jwt = require('jsonwebtoken');
+
         try {
-            if (req.body.Password === DecryptPassword) {
+            if (Password === DecryptPassword) {
                 console.log('your password is correct')
-                res.send('your password is correct')
+                const token = jwt.sign({ Email :Users.Email , Fname :Users.Fname}, 'json web token');
+                res.status(200).json({Success:true , token})
             } else {
                 console.log("password invalid")
                 res.send('Password invalid')
@@ -141,20 +152,11 @@ app.post('/login/decrypt-js', async (req, res) => {
             res.send("Invalid Email & Password")
         }
 
-    } else {
 
-        console.log("Email is Invalid ")
-        res.send("Email is Invalid ")
-
-
+    }else {
+        console.log("Email is Invalid  Email is Not Find in Database")
+        res.send("Email is Invalid Email is Not Find in Database ").status(400)
     }
-
-
-
-
-
-
-
 })
 
 
