@@ -156,6 +156,7 @@ app.post('/login/decrypt-js', async (req, res) => {
             if (Password === DecryptPassword) {
                 console.log('your password is correct')
                 const token = jwt.sign({ Email: Users.Email, Fname: Users.Fname }, 'json web token');
+                console.log(token)
                 res.status(200).json({ Success: true, token })
             } else {
                 console.log("password invalid")
