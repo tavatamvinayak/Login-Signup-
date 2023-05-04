@@ -60,15 +60,19 @@ app.post('/signup', async (req, res) => {
     // // // 1st check method
     try {
         // check Email is already exist error shows && Email is not found (not find) && Email=== Null
-        if (EmailAlreadyFind.Email) {
+        if (!EmailAlreadyFind) {
+            console.log("Processing")
+            const UsersData = await Users.save();
+            console.log(`UsersData req-body ` + UsersData);
+            res.json(UsersData)
+        }
+        else {
             res.send('Already account created --->' + EmailAlreadyFind.Email).status(200)
             console.log('email already exist')
         }
     } catch (error) {
-        console.log("Processing")
-            const UsersData = await Users.save();
-            console.log(`UsersData req-body ` + UsersData);
-        res.json(UsersData)
+        console.log("server errors")
+        res.send("server errors")
     }
 
 
@@ -92,8 +96,9 @@ app.post('/signup', async (req, res) => {
 
 
 
+// /////// // Sign up start =
 
-
+const { body, validationResult } = require('express-validator');
 
 //// //// Encrepted data for signUp time
 
@@ -101,40 +106,76 @@ const CryptoJS = require("crypto-js");
 
 
 // /// create time you signup time Encrypt password send database in Encrypt    
-app.post('/signup/encrypt-js', async (req, res) => {
+app.post('/signup/encryptjs',[
+    body('Fname').isLength({min:5}),
+    body('Email').isEmail(),
+    body('Password').isLength({ min: 6 })
+], async (req, res) => {
+    
+    // // express validator
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    
+
+   
+
+
+
     // schema 
     const Users = new Login();   // schema Login.js line:7 
     const { Fname, Email, Password } = req.body
     Users.Fname = Fname;
     Users.Email = Email;
 
-    ////// Encrypt Password 
-    const EncryptPassword = CryptoJS.AES.encrypt(Password, 'secret key : vishal').toString();
 
-    Users.Password = EncryptPassword;
 
     // check for Already account login && Email 
     const EmailAlreadyFind = await Login.findOne({ Email: Email }) // req.body.Email 
+    console.log("Email Find database :", EmailAlreadyFind)
+    ////// Encrypt Password 
+    const EncryptPassword = CryptoJS.AES.encrypt(Password, 'secret key : vishal').toString();
+    Users.Password = EncryptPassword;
 
     try {
         // check Email is already exist error shows && Email is not found (not find) && Email=== Null
-        if (EmailAlreadyFind) {
-            res.send('already account created').status(200)
+        if (!EmailAlreadyFind) {
+            // // save database
+            console.log("pendding + create save database info")
+            const UsersData = await Users.save();
+            console.log(`UsersData req-body ` + UsersData);
+            res.json(UsersData)
+        } else {
+            res.send('Already account created --->' + EmailAlreadyFind.Email).status(200)
             console.log('email already exist')
         }
     } catch (error) {
-
-        // // save database
-        console.log("pendding + create save database info")
-        const UsersData = await Users.save();
-        console.log(`UsersData req-body ` + UsersData);
-        res.json(UsersData)
+        res.send("server errors ")
+        console.log("server errors")
     }
+
+
+
 })
 
 
 // /// login time Decrypt password that password can check 
-app.post('/login/decrypt-js', async (req, res) => {
+app.post('/login/decryptjs', [
+    
+    body('Email').isEmail(),
+    body('Password').isLength({ min: 6 })
+] ,async (req, res) => {
+
+    // // // // express validator
+    const errors = validationResult(req);
+    if(!errors.isEmpty()){
+        return res.status(400).json({errors:errors.array()});
+    }
+    
+
+
+
     const Users = new Login();   // schema Login.js line:7 
     const { Email, Password } = req.body
     Users.Email = Email;
