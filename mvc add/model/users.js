@@ -4,8 +4,15 @@ const { Schema } = mongoose;
 
 const Users = new Schema({
     Fname : String ,
-    Email : String,
-    Password : String
+    Email :  {
+        type:String,
+        require: true,
+        unique: true
+    },
+    Password : {
+        type:String,
+        require: true,
+    }
 })
 
 const Signup = mongoose.model('Users' , Users);
