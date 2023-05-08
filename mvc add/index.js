@@ -1,10 +1,12 @@
+require("dotenv").config();
+
 const express = require('express');
 const ConnectDB = require('./db');
 var cors = require('cors');
 
 ConnectDB();
 const app = express();
-const port = 8080;
+const port = process.env.PORT || 8080;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -24,5 +26,5 @@ app.post('/login',login);
 
 
 
-app.get('/', (req, res) => res.send('Hello World!'));
+app.get('/', (req, res) => res.send('Hello World! vinayak'));
 app.listen(port, () => console.log(`Example app listening on port ${port}`));

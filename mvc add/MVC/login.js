@@ -27,15 +27,15 @@ const Login = async (req, res) => {
             // /// token
             const token = jwt.sign({ id : userAreadyExist._id  , Fname:userAreadyExist.Fname , Email:Email }, 'jsonWebToken');
             console.log(token)
-            res.status(200).json({ Success: true, token })
+            res.status(201).json({ Password:true,Success: true, token:token })
 
         } else {
             console.log("passsword invalid")
-            res.send("password invalid")
+            res.json({Password:false}).status(401);
         }
     } catch (error) {
         console.log(" email Account not created")
-        res.send("invalid account , account not found")
+        res.send("invalid account , account not found").status()
     }
 
 }

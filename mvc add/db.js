@@ -1,7 +1,10 @@
+require("dotenv").config();
+
 const mongoose = require('mongoose')
 
+const mongoUrl = process.env.MONGO_URL || 'mongodb://127.0.0.1:27017/form'
 const dbConnect = async()=>{
-    mongoose.connect('mongodb+srv://tavatamvinayak:<Password>@cluster0.taouj4t.mongodb.net/form?retryWrites=true&w=majority').then(() => {
+    mongoose.connect(mongoUrl).then(() => {
         console.log('connect database successfuly')
     }).catch((err) => {
         console.error(err)
