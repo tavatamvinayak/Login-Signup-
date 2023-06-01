@@ -17,12 +17,12 @@ const Users = require('./model/users');
 
 
 // // require routes
-const signup = require('./MVC/signup');
-const login = require('./MVC/login');
+const {signup ,SIGNUP_ExpressValidation}= require('./MVC/signup');
+const {Login , LOGIN_ExpressValidation} = require('./MVC/login');
 /// /// endpoint & router
 
-app.post('/signup', signup);
-app.post('/login',login);
+app.post('/signup',SIGNUP_ExpressValidation, signup);
+app.post('/login',LOGIN_ExpressValidation,Login);
 
 
 
